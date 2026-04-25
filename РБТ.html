@@ -1,0 +1,2052 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Мастерская - учет заказов и финансов</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --panel: #ffffff;
+      --panel-2: #f9fbfe;
+      --line: #dbe3ee;
+      --text: #1d2736;
+      --muted: #6b7787;
+      --blue: #2c40d0;
+      --blue-2: #edf1ff;
+      --orange: #f45728;
+      --orange-2: #fff0ea;
+      --green: #11885b;
+      --green-2: #e8f8f0;
+      --red: #c23b3b;
+      --red-2: #fff0f0;
+      --yellow: #b17800;
+      --yellow-2: #fff6dc;
+      --shadow: 0 10px 30px rgba(22, 35, 63, 0.08);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      background: linear-gradient(180deg, #2338bf 0%, #192b8d 100%);
+      color: #fff;
+      padding: 24px 18px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .brand-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 20px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .brand small {
+      opacity: 0.92;
+      display: block;
+      margin-top: 4px;
+      font-size: 12px;
+    }
+
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .nav button {
+      width: 100%;
+      text-align: left;
+      border: 0;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .nav button:hover,
+    .nav button.active {
+      background: rgba(255,255,255,0.18);
+    }
+
+    .sidebar-note {
+      margin-top: 24px;
+      padding: 14px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.08);
+      font-size: 12px;
+      line-height: 1.5;
+      color: rgba(255,255,255,0.92);
+    }
+
+    .content {
+      padding: 28px;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+
+    .page-title h2 {
+      margin: 0 0 6px;
+      font-size: 28px;
+    }
+
+    .page-title p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 18px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .btn-primary {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.05);
+    }
+
+    .btn-orange {
+      background: var(--orange);
+      color: #fff;
+    }
+
+    .btn-light {
+      background: #fff;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .btn-light:hover {
+      background: #f7f9fc;
+    }
+
+    .btn-danger {
+      background: var(--red);
+      color: #fff;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .card {
+      background: var(--panel);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      border: 1px solid #eef2f7;
+    }
+
+    .metric-label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .metric-value {
+      font-size: 26px;
+      font-weight: bold;
+    }
+
+    .metric-sub {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      border: 1px solid #eef2f7;
+    }
+
+    .panel h3 {
+      margin: 0 0 14px;
+      font-size: 20px;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr auto;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .field label {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      font-size: 14px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(44, 64, 208, 0.12);
+    }
+
+    .field textarea {
+      min-height: 84px;
+      resize: vertical;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid #edf1f6;
+      border-radius: 16px;
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 980px;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 13px 14px;
+      border-bottom: 1px solid #edf1f6;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      font-size: 13px;
+      color: var(--muted);
+      background: #f9fbfe;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    tr:hover td {
+      background: #fbfdff;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .badge-blue { background: var(--blue-2); color: var(--blue); }
+    .badge-orange { background: var(--orange-2); color: var(--orange); }
+    .badge-green { background: var(--green-2); color: var(--green); }
+    .badge-red { background: var(--red-2); color: var(--red); }
+    .badge-yellow { background: var(--yellow-2); color: var(--yellow); }
+
+    .inline-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .small-btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 8px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .small-btn:hover {
+      background: #f7f9fc;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(220px, 1fr));
+      gap: 14px;
+    }
+
+    .form-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(180px, 1fr));
+      gap: 14px;
+    }
+
+    .form-section {
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid #edf1f6;
+    }
+
+    .form-section h4 {
+      margin: 0 0 14px;
+      font-size: 17px;
+    }
+
+    .helper {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .order-layout {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+    }
+
+    .info-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .info-item {
+      background: var(--panel-2);
+      border: 1px solid #edf1f6;
+      border-radius: 14px;
+      padding: 12px;
+    }
+
+    .info-item b {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: normal;
+    }
+
+    .money-positive {
+      color: var(--green);
+      font-weight: bold;
+    }
+
+    .money-negative {
+      color: var(--red);
+      font-weight: bold;
+    }
+
+    .summary-box {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .summary-box .card-mini {
+      background: var(--panel-2);
+      border: 1px solid #edf1f6;
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .card-mini .label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .card-mini .value {
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .notice {
+      padding: 13px 14px;
+      border-radius: 14px;
+      background: #eef5ff;
+      color: #284fbf;
+      font-size: 13px;
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 30px 14px;
+      color: var(--muted);
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(13, 23, 42, 0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1000;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-box {
+      width: min(1100px, 100%);
+      max-height: 92vh;
+      overflow: auto;
+      background: #fff;
+      border-radius: 22px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.18);
+      padding: 22px;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .modal-header h3 {
+      margin: 0 0 6px;
+    }
+
+    .close {
+      background: #f4f6fb;
+      border: 1px solid var(--line);
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      background: #f5f7fb;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 12px;
+    }
+
+    .footer-note {
+      margin-top: 16px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    @media (max-width: 1350px) {
+      .cards {
+        grid-template-columns: repeat(3, minmax(180px, 1fr));
+      }
+    }
+
+    @media (max-width: 1200px) {
+      .grid-2,
+      .order-layout,
+      .filters {
+        grid-template-columns: 1fr;
+      }
+
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: relative;
+        height: auto;
+      }
+
+      .form-grid,
+      .form-grid-3,
+      .info-list,
+      .summary-box,
+      .cards {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-badge">М</div>
+        <div>
+          <h1>Мастерская</h1>
+          <small>Кутузовская,25</small>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <button class="nav-link active" data-page="dashboardPage">Дашборд</button>
+        <button class="nav-link" data-page="ordersPage">Заказы</button>
+        <button class="nav-link" data-page="financePage">Финансы</button>
+        <button class="nav-link" data-page="settingsPage">Справка</button>
+      </nav>
+
+      <div class="sidebar-note">
+        <b>Логика учета:</b><br>
+        Диагностика оплачивается сразу при приемке как предоплата.<br><br>
+        Клиенту озвучивается итоговая цена ремонта уже с учетом запчастей.<br><br>
+        Предоплата за диагностику входит в зачет общей суммы ремонта.
+      </div>
+    </aside>
+
+    <main class="content">
+      <section id="dashboardPage" class="page active">
+        <div class="page-header">
+          <div class="page-title">
+            <h2>Ремонт бытовой техники</h2>
+            <p>Общий обзор заказов, приходов, расходов и прибыли</p>
+          </div>
+          <div class="actions">
+            <button class="btn btn-orange" id="openCreateOrderFromDashboard">+ Новый заказ</button>
+            <button class="btn btn-light" id="seedDemoBtn">Заполнить демо-данными</button>
+            <button class="btn btn-light" id="exportBtn">Экспорт JSON</button>
+            <button class="btn btn-danger" id="clearAllBtn">Очистить всё</button>
+          </div>
+        </div>
+
+        <div class="cards" id="dashboardCards"></div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <h3>Последние заказы</h3>
+            <div id="recentOrders"></div>
+          </div>
+          <div class="panel">
+            <h3>Статусы заказов</h3>
+            <div id="statusStats"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="ordersPage" class="page">
+        <div class="page-header">
+          <div class="page-title">
+            <h2>Заказы</h2>
+            <p>Учет клиентов, техники, статусов, оплат и согласования ремонта</p>
+          </div>
+          <div class="actions">
+            <button class="btn btn-primary" id="openCreateOrderBtn">+ Создать заказ</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="filters">
+            <div class="field">
+              <label for="searchInput">Поиск</label>
+              <input id="searchInput" type="text" placeholder="Номер заказа, клиент, телефон, техника, бренд..." />
+            </div>
+
+            <div class="field">
+              <label for="statusFilter">Статус</label>
+              <select id="statusFilter"></select>
+            </div>
+
+            <div class="field">
+              <label for="dateFrom">Дата с</label>
+              <input id="dateFrom" type="date" />
+            </div>
+
+            <div class="field">
+              <label for="dateTo">Дата по</label>
+              <input id="dateTo" type="date" />
+            </div>
+
+            <div class="field" style="justify-content: flex-end;">
+              <label>&nbsp;</label>
+              <button class="btn btn-light" id="resetFiltersBtn">Сбросить</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Заказ</th>
+                  <th>Клиент</th>
+                  <th>Техника</th>
+                  <th>Статус</th>
+                  <th>Диагностика</th>
+                  <th>Итог клиенту</th>
+                  <th>Оплачено</th>
+                  <th>Остаток</th>
+                  <th>Действия</th>
+                </tr>
+              </thead>
+              <tbody id="ordersTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="financePage" class="page">
+        <div class="page-header">
+          <div class="page-title">
+            <h2>Финансы</h2>
+            <p>Все движения денег: оплаты клиентов, запчасти и прочие расходы</p>
+          </div>
+        </div>
+
+        <div class="cards" id="financeCards"></div>
+
+        <div class="panel">
+          <div class="toolbar">
+            <div class="chips">
+              <div class="chip">Доходы: диагностика, частичная оплата, финальная оплата</div>
+              <div class="chip">Расходы: покупка запчастей, прочие расходы</div>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Дата</th>
+                  <th>Тип</th>
+                  <th>Категория</th>
+                  <th>Заказ</th>
+                  <th>Комментарий</th>
+                  <th>Сумма</th>
+                </tr>
+              </thead>
+              <tbody id="financeTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="settingsPage" class="page">
+        <div class="page-header">
+          <div class="page-title">
+            <h2>Справка</h2>
+            <p>Краткая документация по приложению</p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Как работает расчет</h3>
+          <div class="notice">
+            <b>Важная логика:</b> диагностика оплачивается в начале как предоплата.<br>
+            Если клиент соглашается на ремонт, эта сумма идет в зачет общей стоимости ремонта.
+          </div>
+
+          <div class="info-list">
+            <div class="info-item">
+              <b>Если ремонт согласован</b>
+              Остаток к оплате = итоговая цена ремонта для клиента - оплачено всего
+            </div>
+
+            <div class="info-item">
+              <b>Если ремонт не согласован</b>
+              Клиент оплачивает только диагностику. Обычно остаток = 0, так как диагностика уже оплачена при приемке.
+            </div>
+
+            <div class="info-item">
+              <b>Что показывается клиенту</b>
+              Одна итоговая сумма ремонта уже с учетом запчастей
+            </div>
+
+            <div class="info-item">
+              <b>Что хранится внутри для учета</b>
+              Внутренняя стоимость работы, стоимость запчастей и расходы для расчета прибыли
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h4>Что можно делать в этой версии</h4>
+            <ul>
+              <li>Создавать и редактировать заказы</li>
+              <li>Добавлять оплату диагностики сразу при приемке</li>
+              <li>Фиксировать согласование ремонта</li>
+              <li>Добавлять итоговую сумму ремонта для клиента</li>
+              <li>Добавлять внутренние расходы на запчасти</li>
+              <li>Добавлять приходы и расходы по заказу</li>
+              <li>Считать оплачено, остаток и прибыль</li>
+              <li>Отдельно видеть приход за сегодня и расход за сегодня</li>
+              <li>Хранить всё локально в браузере</li>
+            </ul>
+          </div>
+
+          <div class="footer-note">
+            <b>Технически:</b> это одностраничное приложение на чистом HTML, CSS и JavaScript.  
+            Данные сохраняются в localStorage браузера. Если открыть этот файл в том же браузере, данные останутся.
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal" id="orderModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div>
+          <h3 id="orderModalTitle">Новый заказ</h3>
+          <div class="muted">Заполни карточку заказа. Все суммы можно будет менять позже.</div>
+        </div>
+        <button class="close" id="closeOrderModal">×</button>
+      </div>
+
+      <form id="orderForm">
+        <input type="hidden" id="orderId" />
+
+        <div class="form-section" style="margin-top:0; padding-top:0; border-top:0;">
+          <h4>1. Клиент и приемка</h4>
+          <div class="form-grid">
+            <div class="field">
+              <label for="clientName">ФИО клиента *</label>
+              <input id="clientName" type="text" required />
+            </div>
+            <div class="field">
+              <label for="clientPhone">Телефон *</label>
+              <input id="clientPhone" type="text" required />
+            </div>
+            <div class="field">
+              <label for="deviceType">Тип техники *</label>
+              <input id="deviceType" type="text" placeholder="Стиральная машина, холодильник..." required />
+            </div>
+            <div class="field">
+              <label for="deviceBrand">Бренд</label>
+              <input id="deviceBrand" type="text" />
+            </div>
+            <div class="field">
+              <label for="deviceModel">Модель</label>
+              <input id="deviceModel" type="text" />
+            </div>
+            <div class="field">
+              <label for="createdAt">Дата приема *</label>
+              <input id="createdAt" type="date" required />
+            </div>
+            <div class="field">
+              <label for="status">Статус *</label>
+              <select id="status" required></select>
+            </div>
+          </div>
+
+          <div class="form-grid" style="margin-top:14px;">
+            <div class="field">
+              <label for="problemDescription">Неисправность со слов клиента</label>
+              <textarea id="problemDescription"></textarea>
+            </div>
+            <div class="field">
+              <label for="deviceCondition">Комплектация / внешний вид / примечание</label>
+              <textarea id="deviceCondition"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h4>2. Диагностика</h4>
+          <div class="form-grid-3">
+            <div class="field">
+              <label for="diagnosticFee">Стоимость диагностики *</label>
+              <input id="diagnosticFee" type="number" min="0" step="0.01" required />
+            </div>
+            <div class="field">
+              <label for="diagnosticPaidAt">Дата оплаты диагностики</label>
+              <input id="diagnosticPaidAt" type="date" />
+            </div>
+            <div class="field">
+              <label for="diagnosticAlreadyPaid">Диагностика оплачена при приемке</label>
+              <select id="diagnosticAlreadyPaid">
+                <option value="yes">Да</option>
+                <option value="no">Нет</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field" style="margin-top:14px;">
+            <label for="diagnosticResult">Результат диагностики</label>
+            <textarea id="diagnosticResult" placeholder="Что выявлено, какие узлы неисправны, нужны ли запчасти..."></textarea>
+          </div>
+
+          <div class="helper" style="margin-top:10px;">
+            Если включено “Диагностика оплачена при приемке”, приложение автоматически создаст первую доходную операцию по заказу.
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h4>3. Согласование ремонта</h4>
+          <div class="form-grid-3">
+            <div class="field">
+              <label for="repairApproved">Ремонт согласован</label>
+              <select id="repairApproved">
+                <option value="no">Нет</option>
+                <option value="yes">Да</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="quotedTotal">Итоговая стоимость ремонта для клиента</label>
+              <input id="quotedTotal" type="number" min="0" step="0.01" placeholder="Сумма уже с учетом запчастей" />
+            </div>
+            <div class="field">
+              <label for="issuedAt">Дата выдачи</label>
+              <input id="issuedAt" type="date" />
+            </div>
+          </div>
+
+          <div class="helper" style="margin-top:10px;">
+            В этом поле указывается та сумма, которую ты называешь клиенту целиком: работа + запчасти + всё вместе.
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h4>4. Внутренний учет</h4>
+          <div class="form-grid-3">
+            <div class="field">
+              <label for="laborCostInternal">Внутренняя стоимость работы</label>
+              <input id="laborCostInternal" type="number" min="0" step="0.01" />
+            </div>
+            <div class="field">
+              <label for="partsCostInternal">Внутренняя стоимость запчастей</label>
+              <input id="partsCostInternal" type="number" min="0" step="0.01" />
+            </div>
+            <div class="field">
+              <label for="otherCostInternal">Прочие внутренние расходы</label>
+              <input id="otherCostInternal" type="number" min="0" step="0.01" />
+            </div>
+          </div>
+
+          <div class="field" style="margin-top:14px;">
+            <label for="orderComment">Комментарий</label>
+            <textarea id="orderComment"></textarea>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="actions">
+            <button class="btn btn-primary" type="submit">Сохранить заказ</button>
+            <button class="btn btn-light" type="button" id="cancelOrderBtn">Отмена</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="detailsModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div>
+          <h3>Карточка заказа</h3>
+          <div class="muted">Подробная информация по заказу, оплатам, расходам и расчетам</div>
+        </div>
+        <button class="close" id="closeDetailsModal">×</button>
+      </div>
+      <div id="detailsContent"></div>
+    </div>
+  </div>
+
+  <div class="modal" id="transactionModal">
+    <div class="modal-box" style="width:min(620px, 100%)">
+      <div class="modal-header">
+        <div>
+          <h3>Добавить финансовую операцию</h3>
+          <div class="muted">Доходы и расходы по конкретному заказу</div>
+        </div>
+        <button class="close" id="closeTransactionModal">×</button>
+      </div>
+
+      <form id="transactionForm">
+        <input type="hidden" id="transactionOrderId" />
+
+        <div class="form-grid">
+          <div class="field">
+            <label for="transactionType">Тип *</label>
+            <select id="transactionType" required>
+              <option value="income">Доход</option>
+              <option value="expense">Расход</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="transactionDate">Дата *</label>
+            <input id="transactionDate" type="date" required />
+          </div>
+          <div class="field">
+            <label for="transactionCategory">Категория *</label>
+            <select id="transactionCategory" required></select>
+          </div>
+          <div class="field">
+            <label for="transactionAmount">Сумма *</label>
+            <input id="transactionAmount" type="number" min="0" step="0.01" required />
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:14px;">
+          <label for="transactionComment">Комментарий</label>
+          <textarea id="transactionComment" placeholder="Например: клиент доплатил остаток / куплена плата / заказан насос"></textarea>
+        </div>
+
+        <div class="form-section">
+          <div class="actions">
+            <button class="btn btn-primary" type="submit">Добавить операцию</button>
+            <button class="btn btn-light" type="button" id="cancelTransactionBtn">Отмена</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "repairWorkshopDataV2";
+
+    const ORDER_STATUSES = [
+      "Новый",
+      "На диагностике",
+      "Ожидает согласования",
+      "В ремонте",
+      "Ожидает запчасть",
+      "Готов",
+      "Выдан",
+      "Отказ"
+    ];
+
+    const TRANSACTION_CATEGORIES = {
+      income: [
+        { value: "diagnostic_prepayment", label: "Оплата диагностики" },
+        { value: "repair_partial_payment", label: "Частичная оплата ремонта" },
+        { value: "repair_final_payment", label: "Финальная оплата ремонта" },
+        { value: "other_income", label: "Прочий доход" }
+      ],
+      expense: [
+        { value: "parts_purchase", label: "Покупка запчастей" },
+        { value: "other_expense", label: "Прочий расход" }
+      ]
+    };
+
+    const state = {
+      data: loadData(),
+      currentOrderIdForDetails: null
+    };
+
+    function loadData() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        return { orders: [], transactions: [] };
+      }
+
+      try {
+        const parsed = JSON.parse(raw);
+        return {
+          orders: Array.isArray(parsed.orders) ? parsed.orders : [],
+          transactions: Array.isArray(parsed.transactions) ? parsed.transactions : []
+        };
+      } catch (e) {
+        return { orders: [], transactions: [] };
+      }
+    }
+
+    function saveData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data));
+    }
+
+    function uid(prefix = "id") {
+      return prefix + "_" + Math.random().toString(36).slice(2, 9) + "_" + Date.now().toString(36);
+    }
+
+    function formatMoney(value) {
+      const num = Number(value || 0);
+      return new Intl.NumberFormat("ru-RU", {
+        style: "currency",
+        currency: "RUB",
+        maximumFractionDigits: 2
+      }).format(num);
+    }
+
+    function formatDate(value) {
+      if (!value) return "—";
+      const d = new Date(value);
+      if (Number.isNaN(d.getTime())) return value;
+      return new Intl.DateTimeFormat("ru-RU").format(d);
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function todayISO() {
+      const now = new Date();
+      const tzOffset = now.getTimezoneOffset() * 60000;
+      return new Date(now - tzOffset).toISOString().slice(0, 10);
+    }
+
+    function getStatusBadgeClass(status) {
+      switch (status) {
+        case "Новый": return "badge-blue";
+        case "На диагностике": return "badge-yellow";
+        case "Ожидает согласования": return "badge-orange";
+        case "В ремонте": return "badge-blue";
+        case "Ожидает запчасть": return "badge-orange";
+        case "Готов": return "badge-green";
+        case "Выдан": return "badge-green";
+        case "Отказ": return "badge-red";
+        default: return "badge-blue";
+      }
+    }
+
+    function getOrderById(orderId) {
+      return state.data.orders.find(o => o.id === orderId);
+    }
+
+    function getTransactionsByOrderId(orderId) {
+      return state.data.transactions
+        .filter(t => t.orderId === orderId)
+        .sort((a, b) => (b.date || "").localeCompare(a.date || "") || b.createdTimestamp - a.createdTimestamp);
+    }
+
+    function getOrderCalculations(order) {
+      const tx = getTransactionsByOrderId(order.id);
+
+      const paidAmount = tx
+        .filter(t => t.type === "income")
+        .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+
+      const expenseAmount = tx
+        .filter(t => t.type === "expense")
+        .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+
+      const customerTotal = order.repairApproved
+        ? Number(order.quotedTotal || 0)
+        : Number(order.diagnosticFee || 0);
+
+      const balanceDue = customerTotal - paidAmount;
+
+      const internalCosts =
+        Number(order.laborCostInternal || 0) +
+        Number(order.partsCostInternal || 0) +
+        Number(order.otherCostInternal || 0);
+
+      const netProfit = paidAmount - expenseAmount - internalCosts;
+
+      return {
+        paidAmount,
+        expenseAmount,
+        customerTotal,
+        balanceDue,
+        internalCosts,
+        netProfit
+      };
+    }
+
+    function getTodayIncome() {
+      const today = todayISO();
+      return state.data.transactions
+        .filter(t => t.type === "income" && t.date === today)
+        .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+    }
+
+    function getTodayExpense() {
+      const today = todayISO();
+      return state.data.transactions
+        .filter(t => t.type === "expense" && t.date === today)
+        .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+    }
+
+    function generateOrderNumber() {
+      const year = new Date().getFullYear();
+      const count = state.data.orders.length + 1;
+      return "R-" + year + "-" + String(count).padStart(4, "0");
+    }
+
+    function setStatusOptions(selectEl) {
+      selectEl.innerHTML = ORDER_STATUSES
+        .map(status => `<option value="${escapeHtml(status)}">${escapeHtml(status)}</option>`)
+        .join("");
+    }
+
+    function setStatusFilterOptions() {
+      const el = document.getElementById("statusFilter");
+      el.innerHTML = `
+        <option value="">Все статусы</option>
+        ${ORDER_STATUSES.map(status => `<option value="${escapeHtml(status)}">${escapeHtml(status)}</option>`).join("")}
+      `;
+    }
+
+    function setTransactionCategoryOptions(type) {
+      const categorySelect = document.getElementById("transactionCategory");
+      const items = TRANSACTION_CATEGORIES[type] || [];
+      categorySelect.innerHTML = items
+        .map(item => `<option value="${escapeHtml(item.value)}">${escapeHtml(item.label)}</option>`)
+        .join("");
+    }
+
+    function openModal(id) {
+      document.getElementById(id).classList.add("show");
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove("show");
+    }
+
+    function showPage(pageId) {
+      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+      document.querySelectorAll(".nav-link").forEach(b => b.classList.remove("active"));
+
+      document.getElementById(pageId).classList.add("active");
+      document.querySelector(`.nav-link[data-page="${pageId}"]`)?.classList.add("active");
+    }
+
+    function renderDashboard() {
+      const orders = [...state.data.orders];
+      const transactions = [...state.data.transactions];
+
+      const totalIncome = transactions
+        .filter(t => t.type === "income")
+        .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+
+      const totalExpense = transactions
+        .filter(t => t.type === "expense")
+        .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+
+      const todayIncome = getTodayIncome();
+      const todayExpense = getTodayExpense();
+
+      const activeOrders = orders.filter(o => !["Выдан", "Отказ"].includes(o.status)).length;
+      const readyOrders = orders.filter(o => o.status === "Готов").length;
+
+      const internalCosts = orders.reduce((sum, o) => {
+        return sum +
+          Number(o.laborCostInternal || 0) +
+          Number(o.partsCostInternal || 0) +
+          Number(o.otherCostInternal || 0);
+      }, 0);
+
+      const netProfit = totalIncome - totalExpense - internalCosts;
+
+      document.getElementById("dashboardCards").innerHTML = `
+        <div class="card">
+          <div class="metric-label">Всего заказов</div>
+          <div class="metric-value">${orders.length}</div>
+          <div class="metric-sub">Все принятые заказы</div>
+        </div>
+        <div class="card">
+          <div class="metric-label">Активные заказы</div>
+          <div class="metric-value">${activeOrders}</div>
+          <div class="metric-sub">Не выданы и не закрыты отказом</div>
+        </div>
+        <div class="card">
+          <div class="metric-label">Приход за сегодня</div>
+          <div class="metric-value money-positive">${formatMoney(todayIncome)}</div>
+          <div class="metric-sub">Все оплаты за текущий день</div>
+        </div>
+        <div class="card">
+          <div class="metric-label">Расход за сегодня</div>
+          <div class="metric-value money-negative">${formatMoney(todayExpense)}</div>
+          <div class="metric-sub">Все расходы за текущий день</div>
+        </div>
+        <div class="card">
+          <div class="metric-label">Общий приход</div>
+          <div class="metric-value">${formatMoney(totalIncome)}</div>
+          <div class="metric-sub">Все оплаты от клиентов</div>
+        </div>
+        <div class="card">
+          <div class="metric-label">Чистая прибыль</div>
+          <div class="metric-value ${netProfit >= 0 ? "money-positive" : "money-negative"}">${formatMoney(netProfit)}</div>
+          <div class="metric-sub">Приход - расходы - внутренние затраты</div>
+        </div>
+      `;
+
+      const recent = [...orders]
+        .sort((a, b) => b.createdTimestamp - a.createdTimestamp)
+        .slice(0, 6);
+
+      const recentContainer = document.getElementById("recentOrders");
+      if (!recent.length) {
+        recentContainer.innerHTML = `<div class="empty">Пока нет заказов</div>`;
+      } else {
+        recentContainer.innerHTML = `
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Номер</th>
+                  <th>Клиент</th>
+                  <th>Техника</th>
+                  <th>Статус</th>
+                  <th>Остаток</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${recent.map(order => {
+                  const calc = getOrderCalculations(order);
+                  return `
+                    <tr>
+                      <td>${escapeHtml(order.orderNumber)}</td>
+                      <td>${escapeHtml(order.clientName)}</td>
+                      <td>${escapeHtml(order.deviceType)} ${order.deviceBrand ? "(" + escapeHtml(order.deviceBrand) + ")" : ""}</td>
+                      <td><span class="badge ${getStatusBadgeClass(order.status)}">${escapeHtml(order.status)}</span></td>
+                      <td class="${calc.balanceDue > 0 ? "money-negative" : "money-positive"}">${formatMoney(calc.balanceDue)}</td>
+                    </tr>
+                  `;
+                }).join("")}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      const statusMap = ORDER_STATUSES.map(status => ({
+        status,
+        count: orders.filter(o => o.status === status).length
+      }));
+
+      const statusStats = document.getElementById("statusStats");
+      statusStats.innerHTML = statusMap.map(item => `
+        <div class="info-item" style="margin-bottom:10px;">
+          <b>${escapeHtml(item.status)}</b>
+          ${item.count}
+        </div>
+      `).join("") + `
+        <div class="summary-box">
+          <div class="card-mini">
+            <div class="label">Готово к выдаче</div>
+            <div class="value">${readyOrders}</div>
+          </div>
+          <div class="card-mini">
+            <div class="label">Общий расход</div>
+            <div class="value">${formatMoney(totalExpense)}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function getFilteredOrders() {
+      const search = document.getElementById("searchInput").value.trim().toLowerCase();
+      const status = document.getElementById("statusFilter").value;
+      const dateFrom = document.getElementById("dateFrom").value;
+      const dateTo = document.getElementById("dateTo").value;
+
+      return [...state.data.orders]
+        .filter(order => {
+          const haystack = [
+            order.orderNumber,
+            order.clientName,
+            order.clientPhone,
+            order.deviceType,
+            order.deviceBrand,
+            order.deviceModel,
+            order.problemDescription
+          ].join(" ").toLowerCase();
+
+          const matchesSearch = !search || haystack.includes(search);
+          const matchesStatus = !status || order.status === status;
+          const matchesDateFrom = !dateFrom || order.createdAt >= dateFrom;
+          const matchesDateTo = !dateTo || order.createdAt <= dateTo;
+
+          return matchesSearch && matchesStatus && matchesDateFrom && matchesDateTo;
+        })
+        .sort((a, b) => b.createdTimestamp - a.createdTimestamp);
+    }
+
+    function renderOrdersTable() {
+      const body = document.getElementById("ordersTableBody");
+      const orders = getFilteredOrders();
+
+      if (!orders.length) {
+        body.innerHTML = `
+          <tr>
+            <td colspan="9">
+              <div class="empty">По текущим фильтрам ничего не найдено</div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      body.innerHTML = orders.map(order => {
+        const calc = getOrderCalculations(order);
+        return `
+          <tr>
+            <td>
+              <b>${escapeHtml(order.orderNumber)}</b><br>
+              <span class="muted">${formatDate(order.createdAt)}</span>
+            </td>
+            <td>
+              <b>${escapeHtml(order.clientName)}</b><br>
+              <span class="muted">${escapeHtml(order.clientPhone)}</span>
+            </td>
+            <td>
+              <b>${escapeHtml(order.deviceType)}</b><br>
+              <span class="muted">${escapeHtml([order.deviceBrand, order.deviceModel].filter(Boolean).join(" ")) || "—"}</span>
+            </td>
+            <td><span class="badge ${getStatusBadgeClass(order.status)}">${escapeHtml(order.status)}</span></td>
+            <td>${formatMoney(order.diagnosticFee)}</td>
+            <td>${formatMoney(calc.customerTotal)}</td>
+            <td class="money-positive">${formatMoney(calc.paidAmount)}</td>
+            <td class="${calc.balanceDue > 0 ? "money-negative" : "money-positive"}">${formatMoney(calc.balanceDue)}</td>
+            <td>
+              <div class="inline-actions">
+                <button class="small-btn" onclick="viewOrder('${order.id}')">Открыть</button>
+                <button class="small-btn" onclick="editOrder('${order.id}')">Изменить</button>
+                <button class="small-btn" onclick="openTransactionForOrder('${order.id}')">Операция</button>
+                <button class="small-btn" onclick="deleteOrder('${order.id}')">Удалить</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function renderFinance() {
+      const transactions = [...state.data.transactions].sort((a, b) => {
+        return (b.date || "").localeCompare(a.date || "") || b.createdTimestamp - a.createdTimestamp;
+      });
+
+      const income = transactions
+        .filter(t => t.type === "income")
+        .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+
+      const expense = transactions
+        .filter(t => t.type === "expense")
+        .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+
+      const todayIncome = getTodayIncome();
+      const todayExpense = getTodayExpense();
+
+      const internalCosts = state.data.orders.reduce((sum, o) => {
+        return sum +
+          Number(o.laborCostInternal || 0) +
+          Number(o.partsCostInternal || 0) +
+          Number(o.otherCostInternal || 0);
+      }, 0);
+
+      const totalProfit = income - expense - internalCosts;
+
+      document.getElementById("financeCards").innerHTML = `
+        <div class="card">
+          <div class="metric-label">Приход за сегодня</div>
+          <div class="metric-value money-positive">${formatMoney(todayIncome)}</div>
+          <div class="metric-sub">Доходные операции за сегодня</div>
+        </div>
+        <div class="card">
+          <div class="metric-label">Расход за сегодня</div>
+          <div class="metric-value money-negative">${formatMoney(todayExpense)}</div>
+          <div class="metric-sub">Расходные операции за сегодня</div>
+        </div>
+        <div class="card">
+          <div class="metric-label">Общий приход</div>
+          <div class="metric-value">${formatMoney(income)}</div>
+          <div class="metric-sub">Все доходные операции</div>
+        </div>
+        <div class="card">
+          <div class="metric-label">Общий расход</div>
+          <div class="metric-value">${formatMoney(expense)}</div>
+          <div class="metric-sub">Все расходные операции</div>
+        </div>
+        <div class="card">
+          <div class="metric-label">Внутренние затраты</div>
+          <div class="metric-value">${formatMoney(internalCosts)}</div>
+          <div class="metric-sub">Работа + запчасти + прочее</div>
+        </div>
+        <div class="card">
+          <div class="metric-label">Итоговая прибыль</div>
+          <div class="metric-value ${totalProfit >= 0 ? "money-positive" : "money-negative"}">${formatMoney(totalProfit)}</div>
+          <div class="metric-sub">Приход - расход - внутренние затраты</div>
+        </div>
+      `;
+
+      const body = document.getElementById("financeTableBody");
+      if (!transactions.length) {
+        body.innerHTML = `
+          <tr>
+            <td colspan="6"><div class="empty">Пока нет финансовых операций</div></td>
+          </tr>
+        `;
+        return;
+      }
+
+      body.innerHTML = transactions.map(t => {
+        const order = getOrderById(t.orderId);
+        const categoryLabel = getCategoryLabel(t.type, t.category);
+        return `
+          <tr>
+            <td>${formatDate(t.date)}</td>
+            <td><span class="badge ${t.type === "income" ? "badge-green" : "badge-red"}">${t.type === "income" ? "Доход" : "Расход"}</span></td>
+            <td>${escapeHtml(categoryLabel)}</td>
+            <td>${order ? escapeHtml(order.orderNumber) : "—"}</td>
+            <td>${escapeHtml(t.comment || "—")}</td>
+            <td class="${t.type === "income" ? "money-positive" : "money-negative"}">${t.type === "income" ? "+" : "-"} ${formatMoney(t.amount)}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function getCategoryLabel(type, value) {
+      const item = (TRANSACTION_CATEGORIES[type] || []).find(x => x.value === value);
+      return item ? item.label : value;
+    }
+
+    function renderAll() {
+      renderDashboard();
+      renderOrdersTable();
+      renderFinance();
+    }
+
+    function resetOrderForm() {
+      document.getElementById("orderForm").reset();
+      document.getElementById("orderId").value = "";
+      document.getElementById("createdAt").value = todayISO();
+      document.getElementById("diagnosticPaidAt").value = todayISO();
+      document.getElementById("issuedAt").value = "";
+      document.getElementById("status").value = "Новый";
+      document.getElementById("repairApproved").value = "no";
+      document.getElementById("diagnosticAlreadyPaid").value = "yes";
+      document.getElementById("orderModalTitle").textContent = "Новый заказ";
+    }
+
+    function openCreateOrderModal() {
+      resetOrderForm();
+      openModal("orderModal");
+    }
+
+    function editOrder(orderId) {
+      const order = getOrderById(orderId);
+      if (!order) return;
+
+      document.getElementById("orderModalTitle").textContent = "Редактирование заказа";
+      document.getElementById("orderId").value = order.id;
+      document.getElementById("clientName").value = order.clientName || "";
+      document.getElementById("clientPhone").value = order.clientPhone || "";
+      document.getElementById("deviceType").value = order.deviceType || "";
+      document.getElementById("deviceBrand").value = order.deviceBrand || "";
+      document.getElementById("deviceModel").value = order.deviceModel || "";
+      document.getElementById("createdAt").value = order.createdAt || todayISO();
+      document.getElementById("status").value = order.status || "Новый";
+      document.getElementById("problemDescription").value = order.problemDescription || "";
+      document.getElementById("deviceCondition").value = order.deviceCondition || "";
+      document.getElementById("diagnosticFee").value = order.diagnosticFee || 0;
+      document.getElementById("diagnosticPaidAt").value = order.diagnosticPaidAt || "";
+      document.getElementById("diagnosticAlreadyPaid").value = order.diagnosticAlreadyPaid ? "yes" : "no";
+      document.getElementById("diagnosticResult").value = order.diagnosticResult || "";
+      document.getElementById("repairApproved").value = order.repairApproved ? "yes" : "no";
+      document.getElementById("quotedTotal").value = order.quotedTotal || "";
+      document.getElementById("issuedAt").value = order.issuedAt || "";
+      document.getElementById("laborCostInternal").value = order.laborCostInternal || "";
+      document.getElementById("partsCostInternal").value = order.partsCostInternal || "";
+      document.getElementById("otherCostInternal").value = order.otherCostInternal || "";
+      document.getElementById("orderComment").value = order.orderComment || "";
+
+      openModal("orderModal");
+    }
+
+    function deleteOrder(orderId) {
+      const order = getOrderById(orderId);
+      if (!order) return;
+
+      if (!confirm(`Удалить заказ ${order.orderNumber}?\nВсе связанные финансовые операции тоже будут удалены.`)) {
+        return;
+      }
+
+      state.data.orders = state.data.orders.filter(o => o.id !== orderId);
+      state.data.transactions = state.data.transactions.filter(t => t.orderId !== orderId);
+      saveData();
+      renderAll();
+    }
+
+    function handleOrderSubmit(event) {
+      event.preventDefault();
+
+      const id = document.getElementById("orderId").value.trim();
+      const isEdit = Boolean(id);
+
+      const orderData = {
+        id: isEdit ? id : uid("order"),
+        orderNumber: isEdit ? (getOrderById(id)?.orderNumber || generateOrderNumber()) : generateOrderNumber(),
+        clientName: document.getElementById("clientName").value.trim(),
+        clientPhone: document.getElementById("clientPhone").value.trim(),
+        deviceType: document.getElementById("deviceType").value.trim(),
+        deviceBrand: document.getElementById("deviceBrand").value.trim(),
+        deviceModel: document.getElementById("deviceModel").value.trim(),
+        problemDescription: document.getElementById("problemDescription").value.trim(),
+        deviceCondition: document.getElementById("deviceCondition").value.trim(),
+        status: document.getElementById("status").value,
+        createdAt: document.getElementById("createdAt").value,
+        diagnosticFee: Number(document.getElementById("diagnosticFee").value || 0),
+        diagnosticPaidAt: document.getElementById("diagnosticPaidAt").value,
+        diagnosticAlreadyPaid: document.getElementById("diagnosticAlreadyPaid").value === "yes",
+        diagnosticResult: document.getElementById("diagnosticResult").value.trim(),
+        repairApproved: document.getElementById("repairApproved").value === "yes",
+        quotedTotal: Number(document.getElementById("quotedTotal").value || 0),
+        laborCostInternal: Number(document.getElementById("laborCostInternal").value || 0),
+        partsCostInternal: Number(document.getElementById("partsCostInternal").value || 0),
+        otherCostInternal: Number(document.getElementById("otherCostInternal").value || 0),
+        issuedAt: document.getElementById("issuedAt").value,
+        orderComment: document.getElementById("orderComment").value.trim(),
+        createdTimestamp: isEdit ? (getOrderById(id)?.createdTimestamp || Date.now()) : Date.now()
+      };
+
+      if (isEdit) {
+        state.data.orders = state.data.orders.map(o => o.id === id ? orderData : o);
+      } else {
+        state.data.orders.push(orderData);
+
+        if (orderData.diagnosticAlreadyPaid && orderData.diagnosticFee > 0) {
+          state.data.transactions.push({
+            id: uid("tx"),
+            orderId: orderData.id,
+            type: "income",
+            category: "diagnostic_prepayment",
+            amount: orderData.diagnosticFee,
+            date: orderData.diagnosticPaidAt || orderData.createdAt || todayISO(),
+            comment: "Автоматическая предоплата за диагностику",
+            createdTimestamp: Date.now()
+          });
+        }
+      }
+
+      saveData();
+      closeModal("orderModal");
+      renderAll();
+    }
+
+    function viewOrder(orderId) {
+      const order = getOrderById(orderId);
+      if (!order) return;
+      state.currentOrderIdForDetails = orderId;
+
+      const calc = getOrderCalculations(order);
+      const tx = getTransactionsByOrderId(orderId);
+
+      const txRows = tx.length ? `
+        <div class="table-wrap" style="margin-top:12px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Дата</th>
+                <th>Тип</th>
+                <th>Категория</th>
+                <th>Комментарий</th>
+                <th>Сумма</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tx.map(item => `
+                <tr>
+                  <td>${formatDate(item.date)}</td>
+                  <td><span class="badge ${item.type === "income" ? "badge-green" : "badge-red"}">${item.type === "income" ? "Доход" : "Расход"}</span></td>
+                  <td>${escapeHtml(getCategoryLabel(item.type, item.category))}</td>
+                  <td>${escapeHtml(item.comment || "—")}</td>
+                  <td class="${item.type === "income" ? "money-positive" : "money-negative"}">${item.type === "income" ? "+" : "-"} ${formatMoney(item.amount)}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      ` : `<div class="empty">По этому заказу пока нет финансовых операций</div>`;
+
+      document.getElementById("detailsContent").innerHTML = `
+        <div class="order-layout">
+          <div class="panel">
+            <div class="toolbar">
+              <div>
+                <h3 style="margin:0 0 6px;">${escapeHtml(order.orderNumber)}</h3>
+                <div class="muted">${formatDate(order.createdAt)}</div>
+              </div>
+              <div class="actions">
+                <button class="btn btn-light" onclick="editOrder('${order.id}'); closeModal('detailsModal')">Изменить заказ</button>
+                <button class="btn btn-primary" onclick="openTransactionForOrder('${order.id}')">+ Операция</button>
+              </div>
+            </div>
+
+            <div class="info-list">
+              <div class="info-item"><b>Клиент</b>${escapeHtml(order.clientName)}</div>
+              <div class="info-item"><b>Телефон</b>${escapeHtml(order.clientPhone)}</div>
+              <div class="info-item"><b>Техника</b>${escapeHtml(order.deviceType)}</div>
+              <div class="info-item"><b>Бренд / модель</b>${escapeHtml([order.deviceBrand, order.deviceModel].filter(Boolean).join(" ")) || "—"}</div>
+              <div class="info-item"><b>Статус</b><span class="badge ${getStatusBadgeClass(order.status)}">${escapeHtml(order.status)}</span></div>
+              <div class="info-item"><b>Неисправность со слов клиента</b>${escapeHtml(order.problemDescription || "—")}</div>
+              <div class="info-item"><b>Комплектация / внешний вид</b>${escapeHtml(order.deviceCondition || "—")}</div>
+              <div class="info-item"><b>Результат диагностики</b>${escapeHtml(order.diagnosticResult || "—")}</div>
+              <div class="info-item"><b>Комментарий</b>${escapeHtml(order.orderComment || "—")}</div>
+            </div>
+
+            <div class="form-section">
+              <h4>Финансовые операции</h4>
+              ${txRows}
+            </div>
+          </div>
+
+          <div class="panel">
+            <h3>Расчеты по заказу</h3>
+
+            <div class="summary-box">
+              <div class="card-mini">
+                <div class="label">Диагностика</div>
+                <div class="value">${formatMoney(order.diagnosticFee)}</div>
+              </div>
+              <div class="card-mini">
+                <div class="label">Итог клиенту</div>
+                <div class="value">${formatMoney(calc.customerTotal)}</div>
+              </div>
+              <div class="card-mini">
+                <div class="label">Оплачено</div>
+                <div class="value money-positive">${formatMoney(calc.paidAmount)}</div>
+              </div>
+              <div class="card-mini">
+                <div class="label">Остаток / переплата</div>
+                <div class="value ${calc.balanceDue > 0 ? "money-negative" : "money-positive"}">${formatMoney(calc.balanceDue)}</div>
+              </div>
+              <div class="card-mini">
+                <div class="label">Расходы по операциям</div>
+                <div class="value money-negative">${formatMoney(calc.expenseAmount)}</div>
+              </div>
+              <div class="card-mini">
+                <div class="label">Чистая прибыль</div>
+                <div class="value ${calc.netProfit >= 0 ? "money-positive" : "money-negative"}">${formatMoney(calc.netProfit)}</div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h4>Логика согласования</h4>
+              <div class="info-list">
+                <div class="info-item">
+                  <b>Ремонт согласован</b>
+                  ${order.repairApproved ? "Да" : "Нет"}
+                </div>
+                <div class="info-item">
+                  <b>Диагностика оплачена в начале</b>
+                  ${order.diagnosticAlreadyPaid ? "Да" : "Нет"}
+                </div>
+                <div class="info-item">
+                  <b>Дата оплаты диагностики</b>
+                  ${formatDate(order.diagnosticPaidAt)}
+                </div>
+                <div class="info-item">
+                  <b>Дата выдачи</b>
+                  ${formatDate(order.issuedAt)}
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h4>Внутренний учет</h4>
+              <div class="info-list">
+                <div class="info-item"><b>Стоимость работы</b>${formatMoney(order.laborCostInternal)}</div>
+                <div class="info-item"><b>Стоимость запчастей</b>${formatMoney(order.partsCostInternal)}</div>
+                <div class="info-item"><b>Прочие расходы</b>${formatMoney(order.otherCostInternal)}</div>
+                <div class="info-item"><b>Все внутренние затраты</b>${formatMoney(calc.internalCosts)}</div>
+              </div>
+            </div>
+
+            <div class="footer-note">
+              <b>Пояснение:</b> если ремонт согласован, клиенту показывается итоговая сумма ремонта. Диагностика, которая была оплачена в начале, уже входит в зачет этой суммы.
+            </div>
+          </div>
+        </div>
+      `;
+
+      openModal("detailsModal");
+    }
+
+    function openTransactionForOrder(orderId) {
+      const order = getOrderById(orderId);
+      if (!order) return;
+
+      document.getElementById("transactionOrderId").value = orderId;
+      document.getElementById("transactionForm").reset();
+      document.getElementById("transactionDate").value = todayISO();
+      document.getElementById("transactionType").value = "income";
+      setTransactionCategoryOptions("income");
+      document.getElementById("transactionAmount").value = "";
+      document.getElementById("transactionComment").value = "";
+      openModal("transactionModal");
+    }
+
+    function handleTransactionSubmit(event) {
+      event.preventDefault();
+
+      const orderId = document.getElementById("transactionOrderId").value;
+      if (!orderId) return;
+
+      const amount = Number(document.getElementById("transactionAmount").value || 0);
+      if (amount <= 0) {
+        alert("Сумма должна быть больше 0");
+        return;
+      }
+
+      state.data.transactions.push({
+        id: uid("tx"),
+        orderId,
+        type: document.getElementById("transactionType").value,
+        category: document.getElementById("transactionCategory").value,
+        amount,
+        date: document.getElementById("transactionDate").value || todayISO(),
+        comment: document.getElementById("transactionComment").value.trim(),
+        createdTimestamp: Date.now()
+      });
+
+      saveData();
+      closeModal("transactionModal");
+      renderAll();
+
+      if (state.currentOrderIdForDetails === orderId) {
+        viewOrder(orderId);
+      }
+    }
+
+    function exportJSON() {
+      const blob = new Blob([JSON.stringify(state.data, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "repair-workshop-data.json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function clearAllData() {
+      if (!confirm("Точно удалить все заказы и все финансовые операции?")) return;
+      state.data = { orders: [], transactions: [] };
+      saveData();
+      renderAll();
+    }
+
+    function seedDemoData() {
+      if (state.data.orders.length || state.data.transactions.length) {
+        const ok = confirm("Демо-данные добавятся к текущим данным. Продолжить?");
+        if (!ok) return;
+      }
+
+      const order1Id = uid("order");
+      const order2Id = uid("order");
+      const order3Id = uid("order");
+
+      const demoOrders = [
+        {
+          id: order1Id,
+          orderNumber: "R-2026-0001",
+          clientName: "Иванов Сергей",
+          clientPhone: "+7 999 123-45-67",
+          deviceType: "Стиральная машина",
+          deviceBrand: "LG",
+          deviceModel: "F1296ND3",
+          problemDescription: "Не сливает воду",
+          deviceCondition: "Шланг в комплекте, следы эксплуатации",
+          status: "В ремонте",
+          createdAt: todayISO(),
+          diagnosticFee: 700,
+          diagnosticPaidAt: todayISO(),
+          diagnosticAlreadyPaid: true,
+          diagnosticResult: "Неисправен насос слива, требуется замена",
+          repairApproved: true,
+          quotedTotal: 4200,
+          laborCostInternal: 1000,
+          partsCostInternal: 1200,
+          otherCostInternal: 0,
+          issuedAt: "",
+          orderComment: "Клиент согласовал ремонт по телефону",
+          createdTimestamp: Date.now() - 30000
+        },
+        {
+          id: order2Id,
+          orderNumber: "R-2026-0002",
+          clientName: "Петрова Анна",
+          clientPhone: "+7 999 444-55-66",
+          deviceType: "Микроволновка",
+          deviceBrand: "Samsung",
+          deviceModel: "ME83XR",
+          problemDescription: "Не греет",
+          deviceCondition: "Без тарелки, корпус с потертостями",
+          status: "Ожидает согласования",
+          createdAt: todayISO(),
+          diagnosticFee: 500,
+          diagnosticPaidAt: todayISO(),
+          diagnosticAlreadyPaid: true,
+          diagnosticResult: "Проблема с магнетроном",
+          repairApproved: false,
+          quotedTotal: 0,
+          laborCostInternal: 0,
+          partsCostInternal: 0,
+          otherCostInternal: 0,
+          issuedAt: "",
+          orderComment: "Ждем решение клиента",
+          createdTimestamp: Date.now() - 20000
+        },
+        {
+          id: order3Id,
+          orderNumber: "R-2026-0003",
+          clientName: "Сидоров Павел",
+          clientPhone: "+7 999 777-88-99",
+          deviceType: "Пылесос",
+          deviceBrand: "Bosch",
+          deviceModel: "BGL35MOV14",
+          problemDescription: "Сильный шум двигателя",
+          deviceCondition: "Есть насадки, загрязнен фильтр",
+          status: "Готов",
+          createdAt: todayISO(),
+          diagnosticFee: 400,
+          diagnosticPaidAt: todayISO(),
+          diagnosticAlreadyPaid: true,
+          diagnosticResult: "Замена подшипника и чистка",
+          repairApproved: true,
+          quotedTotal: 2500,
+          laborCostInternal: 700,
+          partsCostInternal: 300,
+          otherCostInternal: 100,
+          issuedAt: "",
+          orderComment: "Можно выдавать",
+          createdTimestamp: Date.now() - 10000
+        }
+      ];
+
+      const demoTransactions = [
+        {
+          id: uid("tx"),
+          orderId: order1Id,
+          type: "income",
+          category: "diagnostic_prepayment",
+          amount: 700,
+          date: todayISO(),
+          comment: "Предоплата за диагностику",
+          createdTimestamp: Date.now() - 29000
+        },
+        {
+          id: uid("tx"),
+          orderId: order1Id,
+          type: "expense",
+          category: "parts_purchase",
+          amount: 1200,
+          date: todayISO(),
+          comment: "Покупка насоса",
+          createdTimestamp: Date.now() - 28000
+        },
+        {
+          id: uid("tx"),
+          orderId: order1Id,
+          type: "income",
+          category: "repair_partial_payment",
+          amount: 1500,
+          date: todayISO(),
+          comment: "Доплата клиента",
+          createdTimestamp: Date.now() - 27000
+        },
+        {
+          id: uid("tx"),
+          orderId: order2Id,
+          type: "income",
+          category: "diagnostic_prepayment",
+          amount: 500,
+          date: todayISO(),
+          comment: "Предоплата за диагностику",
+          createdTimestamp: Date.now() - 19000
+        },
+        {
+          id: uid("tx"),
+          orderId: order3Id,
+          type: "income",
+          category: "diagnostic_prepayment",
+          amount: 400,
+          date: todayISO(),
+          comment: "Предоплата за диагностику",
+          createdTimestamp: Date.now() - 9000
+        },
+        {
+          id: uid("tx"),
+          orderId: order3Id,
+          type: "expense",
+          category: "parts_purchase",
+          amount: 300,
+          date: todayISO(),
+          comment: "Подшипник",
+          createdTimestamp: Date.now() - 8000
+        },
+        {
+          id: uid("tx"),
+          orderId: order3Id,
+          type: "income",
+          category: "repair_final_payment",
+          amount: 2100,
+          date: todayISO(),
+          comment: "Окончательная оплата",
+          createdTimestamp: Date.now() - 7000
+        }
+      ];
+
+      state.data.orders.push(...demoOrders);
+      state.data.transactions.push(...demoTransactions);
+      saveData();
+      renderAll();
+    }
+
+    function bindEvents() {
+      document.querySelectorAll(".nav-link").forEach(btn => {
+        btn.addEventListener("click", () => showPage(btn.dataset.page));
+      });
+
+      document.getElementById("openCreateOrderBtn").addEventListener("click", openCreateOrderModal);
+      document.getElementById("openCreateOrderFromDashboard").addEventListener("click", openCreateOrderModal);
+
+      document.getElementById("closeOrderModal").addEventListener("click", () => closeModal("orderModal"));
+      document.getElementById("cancelOrderBtn").addEventListener("click", () => closeModal("orderModal"));
+      document.getElementById("closeDetailsModal").addEventListener("click", () => closeModal("detailsModal"));
+      document.getElementById("closeTransactionModal").addEventListener("click", () => closeModal("transactionModal"));
+      document.getElementById("cancelTransactionBtn").addEventListener("click", () => closeModal("transactionModal"));
+
+      document.getElementById("orderForm").addEventListener("submit", handleOrderSubmit);
+      document.getElementById("transactionForm").addEventListener("submit", handleTransactionSubmit);
+
+      document.getElementById("transactionType").addEventListener("change", (e) => {
+        setTransactionCategoryOptions(e.target.value);
+      });
+
+      document.getElementById("searchInput").addEventListener("input", renderOrdersTable);
+      document.getElementById("statusFilter").addEventListener("change", renderOrdersTable);
+      document.getElementById("dateFrom").addEventListener("change", renderOrdersTable);
+      document.getElementById("dateTo").addEventListener("change", renderOrdersTable);
+
+      document.getElementById("resetFiltersBtn").addEventListener("click", () => {
+        document.getElementById("searchInput").value = "";
+        document.getElementById("statusFilter").value = "";
+        document.getElementById("dateFrom").value = "";
+        document.getElementById("dateTo").value = "";
+        renderOrdersTable();
+      });
+
+      document.getElementById("seedDemoBtn").addEventListener("click", seedDemoData);
+      document.getElementById("exportBtn").addEventListener("click", exportJSON);
+      document.getElementById("clearAllBtn").addEventListener("click", clearAllData);
+
+      document.getElementById("transactionModal").addEventListener("click", (e) => {
+        if (e.target.id === "transactionModal") closeModal("transactionModal");
+      });
+      document.getElementById("orderModal").addEventListener("click", (e) => {
+        if (e.target.id === "orderModal") closeModal("orderModal");
+      });
+      document.getElementById("detailsModal").addEventListener("click", (e) => {
+        if (e.target.id === "detailsModal") closeModal("detailsModal");
+      });
+    }
+
+    function init() {
+      setStatusOptions(document.getElementById("status"));
+      setStatusFilterOptions();
+      setTransactionCategoryOptions("income");
+      resetOrderForm();
+      bindEvents();
+      renderAll();
+    }
+
+    init();
+
+    window.viewOrder = viewOrder;
+    window.editOrder = editOrder;
+    window.deleteOrder = deleteOrder;
+    window.openTransactionForOrder = openTransactionForOrder;
+    window.closeModal = closeModal;
+  </script>
+</body>
+</html>
